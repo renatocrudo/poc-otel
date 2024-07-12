@@ -6,8 +6,11 @@ authors = ["Renato Crudo <renato.almeida@soupilar.com.br>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.12"
 fastapi = "^0.111.0"
+sqlalchemy = "^2.0.31"
+pydantic-settings = "^2.3.4"
+psycopg = {extras = ["binary"], version = "^3.1.18"}
 
 
 [build-system]
