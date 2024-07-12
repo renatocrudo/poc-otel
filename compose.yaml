@@ -11,6 +11,13 @@ services:
     ports:
       - 8001:8001
 
+  catedral:
+    build: "catedral/."
+    ports:
+      - 8002:8002
+    depends_on:
+      - dbpilar
+
   nginx:
     image: nginx
     volumes:
