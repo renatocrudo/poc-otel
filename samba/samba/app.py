@@ -5,6 +5,9 @@ import httpx
 from fastapi import FastAPI
 from pydantic import BaseModel
 
+
+logger = logging.getLogger()
+
 app = FastAPI()
 
 
@@ -18,6 +21,14 @@ class PessoaOut(PessoaIn):
     id: int
     created_at: datetime
 
+@app.get('/')
+def check():
+    return "Hello World"
+
+
+@app.get('/check')
+def check():
+    return {'status':'OK'}
 
 @app.get('/user/{user_id}')
 async def get_user(user_id: int):

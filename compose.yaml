@@ -8,6 +8,10 @@ services:
 
   samba:
     build: "samba/."
+    depends_on:
+      - otel
+    env_file:
+      - .env
     ports:
       - 8001:8001
 
@@ -17,6 +21,19 @@ services:
       - 8002:8002
     depends_on:
       - dbpilar
+      - otel
+    environment:
+      - OTEL_EXPORTER_OTLP_INSECURE=true
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_METRICS_EXPORTER=otlp
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_PYTHON_LOG_FORMAT="%(msg)s [span_id=%(span_id)s]"
+      - OTEL_SERVICE_NAME=eggs
+      - OTEL_METRIC_EXPORT_INTERVAL=1000
+      - OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED=true
+      - OTEL_PYTHON_LOG_LEVEL=debug
+      - OTEL_PYTHON_LOG_CORRELATION=true
+      - COLLECTOR_OTLP_ENABLED=true
 
   nginx:
     image: nginx
@@ -26,3 +43,54 @@ services:
       - 80:80
     depends_on:
       - samba
+
+  otel:
+    image: grafana/otel-lgtm
+    ports:
+      - 3000:3000 #grafana
+      - 4317:4317 #otel grpc
+
+  # otel-collector:
+  #   image: otel/opentelemetry-collector-contrib:0.102.1
+  #   volumes:
+  #     - ./etc/otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml
+  #   ports:
+  #   - 1888:1888 # pprof extension
+  #   - 8888:8888 # Prometheus metrics exposed by the Collector
+  #   - 8889:8889 # Prometheus exporter metrics
+  #   - 13133:13133 # health_check extension
+  #   - 4317:4317 # OTLP gRPC receiver
+  #   #- 4318:4318 # OTLP http receiver
+  #   - 55679:55679 # zpages extension
+
+  # prometheus:
+  #   image: prom/prometheus
+  #   volumes:
+  #     - ./etc/prometheus.yaml:/etc/prometheus/prometheus.yml
+  #   ports:
+  #     - 9090:9090
+
+  # grafana:
+  #   image: grafana/grafana
+  #   ports:
+  #     - 3000:3000
+  #   volumes:
+  #     - ./etc/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
+  #     - ./etc/grafana/dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml
+  #     - ./etc/grafana/dashboards:/etc/grafana/dashboards
+
+  # tempo:
+  #   depends_on:
+  #     - grafana
+  #   image: grafana/tempo
+  #   command: [ "-target=all", "-storage.trace.backend=local", "-storage.trace.local.path=/var/tempo"]
+  #   ports:
+  #     #- "4317:4317"
+  #     - "4318:4318"
+
+  # loki:
+  #   depends_on:
+  #     - grafana
+  #   image: grafana/loki
+  #   ports:
+  #     - "3100:3100"
