@@ -1,4 +1,5 @@
 import logging
+from contextlib import asynccontextmanager
 from datetime import datetime
 
 import httpx
@@ -7,8 +8,17 @@ from pydantic import BaseModel
 
 
 logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+logger.addHandler(logging.StreamHandler()) # para ele escrever no shell, o que foi enviado para Loki
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app):
+    logger.info('Start Samba')
+    yield
+    logger.info('Stop Samba')
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 class PessoaIn(BaseModel):
