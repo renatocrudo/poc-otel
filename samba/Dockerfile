@@ -10,8 +10,15 @@ COPY pyproject.toml .
 
 RUN poetry install
 
+RUN pip install opentelemetry-distro
+RUN pip install opentelemetry-instrumentation-fastapi
+RUN pip install opentelemetry-instrumentation-system-metrics
+
+RUN opentelemetry-bootstrap -a install
+
 COPY . .
 
-CMD uvicorn samba.app:app \
+CMD opentelemetry-instrument \
+    uvicorn samba.app:app \
     --port 8001 \
     --host 0.0.0.0

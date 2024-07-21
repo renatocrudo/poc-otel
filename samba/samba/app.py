@@ -1,11 +1,24 @@
 import logging
+from contextlib import asynccontextmanager
 from datetime import datetime
 
 import httpx
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-app = FastAPI()
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+logger.addHandler(logging.StreamHandler()) # para ele escrever no shell, o que foi enviado para Loki
+
+@asynccontextmanager
+async def lifespan(app):
+    logger.info('Start Samba')
+    yield
+    logger.info('Stop Samba')
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 class PessoaIn(BaseModel):
@@ -18,6 +31,14 @@ class PessoaOut(PessoaIn):
     id: int
     created_at: datetime
 
+@app.get('/')
+def check():
+    return "Hello World"
+
+
+@app.get('/check')
+def check():
+    return {'status':'OK'}
 
 @app.get('/user/{user_id}')
 async def get_user(user_id: int):
