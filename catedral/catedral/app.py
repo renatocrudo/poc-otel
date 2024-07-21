@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 from datetime import datetime
 
@@ -8,6 +9,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from .database import engine, get_session
 from .models import Pessoa, reg
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+logger.addHandler(logging.StreamHandler())
+
 
 @asynccontextmanager
 async def lifespan(app):

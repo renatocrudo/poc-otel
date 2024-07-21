@@ -11,6 +11,8 @@ COPY pyproject.toml .
 RUN poetry install
 
 RUN pip install opentelemetry-distro
+RUN pip install opentelemetry-instrumentation-fastapi
+RUN pip install opentelemetry-instrumentation-system-metrics
 
 RUN opentelemetry-bootstrap -a install
 

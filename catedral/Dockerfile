@@ -10,8 +10,13 @@ COPY pyproject.toml .
 
 RUN poetry install
 
+RUN pip install opentelemetry-distro
+
+RUN opentelemetry-bootstrap -a install
+
 COPY . .
 
-CMD uvicorn catedral.app:app \
+CMD opentelemetry-instrument \
+    uvicorn catedral.app:app \
     --port 8002 \
     --host 0.0.0.0
